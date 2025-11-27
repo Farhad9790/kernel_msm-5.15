@@ -1185,25 +1185,6 @@ static bool msm_gpio_needs_dual_edge_parent_workaround(struct irq_data *d,
 	       test_bit(d->hwirq, pctrl->skip_wake_irqs);
 }
 
-static void msm_gpio_irq_init_valid_mask(struct gpio_chip *gc,
-					 unsigned long *valid_mask,
-					 unsigned int ngpios)
-{
-	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
-	const struct msm_pingroup *g;
-	int i;
-
-	bitmap_fill(valid_mask, ngpios);
-
-	for (i = 0; i < ngpios; i++) {
-		g = &pctrl->soc->groups[i];
-
-		if (g->intr_detection_width != 1 &&
-		    g->intr_detection_width != 2)
-			clear_bit(i, valid_mask);
-	}
-}
-
 static void msm_dirconn_cfg_reg(struct irq_data *d, u32 offset)
 {
 	u32 val;
@@ -1227,6 +1208,25 @@ static void msm_dirconn_cfg_reg(struct irq_data *d, u32 offset)
 	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
 }
 
+static void msm_gpio_irq_init_valid_mask(struct gpio_chip *gc,
+					 unsigned long *valid_mask,
+					 unsigned int ngpios)
+{
+	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
+	const struct msm_pingroup *g;
+	int i;
+
+	bitmap_fill(valid_mask, ngpios);
+
+	for (i = 0; i < ngpios; i++) {
+		g = &pctrl->soc->groups[i];
+
+		if (g->intr_detection_width != 1 &&
+		    g->intr_detection_width != 2)
+			clear_bit(i, valid_mask);
+	}
+}
+
 static int msm_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 {
 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
@@ -1236,7 +1236,6 @@ static int msm_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	u32 intr_target_mask = GENMASK(2, 0);
 	unsigned long flags;
 	u32 offset = 0;
-	bool was_enabled;
 	u32 val, oldval;
 
 	if (msm_gpio_needs_dual_edge_parent_workaround(d, type)) {
