@@ -214,11 +214,11 @@ jobs:
           echo "⚙️ Using Clang version:"
           clang --version || echo "❌ Clang not found in PATH!"
       
-      - name: 📐 Setup SWAP 8GB
+      - name: 📐 Setup SWAP 10GB
         if: github.event.inputs.buildToolchains == 'android-tools'
         uses: pierotofy/set-swap-space@master
         with:
-            swap-size-gb: 8
+            swap-size-gb: 10
 
       - name: 📐 Setup SWAP 20GB
         if: github.event.inputs.buildToolchains == 'custom-tools'
