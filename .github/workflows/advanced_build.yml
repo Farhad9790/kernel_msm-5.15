@@ -217,21 +217,13 @@ jobs:
       
           echo "⚙️ Using Clang version:"
           clang --version || echo "❌ Clang not found in PATH!"
-      
-      - name: 📐 Setup SWAP 12GB
-        if: github.event.inputs.buildToolchains == 'android-tools'
-        uses: pierotofy/set-swap-space@master
-        with:
-            swap-size-gb: 12
 
       - name: 📐 Setup SWAP 20GB
-        if: github.event.inputs.buildToolchains == 'custom-tools'
         uses: pierotofy/set-swap-space@master
         with:
             swap-size-gb: 20
             
       - name: 📐 Tune Swap
-        if: github.event.inputs.buildToolchains == 'custom-tools'
         run: |
             echo "vm.swappiness=80" | sudo tee -a /etc/sysctl.conf
             sudo sysctl -p
