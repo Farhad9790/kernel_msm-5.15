@@ -255,8 +255,8 @@ jobs:
       - name: "📝 Append custom Makefile line"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
-         echo 'KBUILD_CFLAGS += -Wno-default-const-init-unsafe' >> Makefile
-         echo 'KBUILD_CFLAGS += -Wno-uninitialized-const-pointer' >> Makefile
+         # echo 'KBUILD_CFLAGS += -Wno-default-const-init-unsafe' >> Makefile
+         # echo 'KBUILD_CFLAGS += -Wno-uninitialized-const-pointer' >> Makefile
          echo 'KBUILD_CFLAGS += -Wno-implicit-function-declaration' >> Makefile
          echo 'KBUILD_CFLAGS += -Wno-sometimes-uninitialized' >> Makefile
          echo "Custom Makefile line added successfully"
