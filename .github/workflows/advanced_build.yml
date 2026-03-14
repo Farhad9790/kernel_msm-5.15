@@ -414,7 +414,7 @@ jobs:
           echo "✅ Installed SukiSU-Ultra with SUSFS"
           
       - name: "🔧 Setup Wild KSU with SUSFS"
-        if: matrix.variant == 'ksu' && github.event.inputs.ksuVariant == 'sukisu-ultra'
+        if: matrix.variant == 'ksu' && github.event.inputs.ksuVariant == 'wildksu'
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
           rm -rf ./KernelSU ./drivers/kernelsu
