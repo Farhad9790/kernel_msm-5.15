@@ -252,11 +252,20 @@ jobs:
             args="$args CC=clang"
             echo "args=$args" >> $GITHUB_OUTPUT
             
-      - name: "📝 Append custom Makefile line"
+      - name: "📝 Append custom Makefile line AOSP"
+        if: github.event.inputs.buildToolchains == 'android-tools'
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
-         # echo 'KBUILD_CFLAGS += -Wno-default-const-init-unsafe' >> Makefile
-         # echo 'KBUILD_CFLAGS += -Wno-uninitialized-const-pointer' >> Makefile
+         echo 'KBUILD_CFLAGS += -Wno-implicit-function-declaration' >> Makefile
+         echo 'KBUILD_CFLAGS += -Wno-sometimes-uninitialized' >> Makefile
+         echo "Custom Makefile line added successfully"
+
+      - name: "📝 Append custom Makefile line CUSTOM"
+        if: github.event.inputs.buildToolchains == 'custom-tools'
+        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+        run: |
+         echo 'KBUILD_CFLAGS += -Wno-default-const-init-unsafe' >> Makefile
+         echo 'KBUILD_CFLAGS += -Wno-uninitialized-const-pointer' >> Makefile
          echo 'KBUILD_CFLAGS += -Wno-implicit-function-declaration' >> Makefile
          echo 'KBUILD_CFLAGS += -Wno-sometimes-uninitialized' >> Makefile
          echo "Custom Makefile line added successfully"
@@ -368,7 +377,7 @@ jobs:
           patch -p1 < sign.patch || echo "Warning: Strings patch failed"
 
           # localversion
-          url -L -o localversion.patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch" 
+          curl -L -o localversion.patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch" 
           patch -p1 < localversion.patch || echo "Warning: Strings patch failed"
 
       - name: "🔧 Setup SukiSU-Ultra (Stable)"
