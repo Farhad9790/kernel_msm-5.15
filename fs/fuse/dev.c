@@ -364,9 +364,9 @@ static int queue_interrupt(struct fuse_req *req)
 		spin_unlock(&fiq->lock);
 		return 0;
 	}
-	if (test_and_set_bit(FR_INTR_QUEUED, &req->flags)) {
+	if (test_and_set_bit(FR_INTERRUPTED, &req->flags)) {
 		/* Already queued previously; nothing to do */
-		dprintk("Interrupt already queued: FR_INTR_QUEUED was set (req=%p)\n", req);
+		dprintk("Interrupt already queued: FR_INTERRUPTED was set (req=%p)\n", req);
 		spin_unlock(&fiq->lock);
 		return 0;
 	}
