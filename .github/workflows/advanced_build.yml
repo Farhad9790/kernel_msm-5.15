@@ -626,7 +626,6 @@ jobs:
          • Optimization: \`-${{ github.event.inputs.optimizationLevel }}\`
          • Tick Rate: \`${{ github.event.inputs.tickRate }}\`
          • Build Type: \`${{ github.event.inputs.buildKSU }}\`${KSU_TEXT}
-         • KSU Variant: \`${{ github.event.inputs.ksuVariant }}\`
          • SUSFS: \`Enabled (GKI A13-5.15)\`
          • Local Version: \`${{ github.event.inputs.localVersion }}\`
          • Build Tools: \`${{ github.event.inputs.buildToolchains }}\`
@@ -653,7 +652,6 @@ jobs:
          • Optimization: \`-${{ github.event.inputs.optimizationLevel }}\`
          • Tick Rate: \`${{ github.event.inputs.tickRate }}\`
          • Build Type: \`${{ github.event.inputs.buildKSU }}\`${KSU_TEXT}
-         • KSU Variant: \`${{ github.event.inputs.ksuVariant }}\`
          • SUSFS: \`Enabled (GKI A13-5.15)\`
          • Local Version: \`${{ github.event.inputs.localVersion }}\`
          • Build Tools: \`${{ github.event.inputs.buildToolchains }}\`
