@@ -360,13 +360,13 @@ static int queue_interrupt(struct fuse_req *req)
 	}
 
 	if (test_bit(FR_FINISHED, &req->flags)) {
-		dprintk("Request finished: FR_FINISHED set (req=%p)\n", req);
+		_printk("Request finished: FR_FINISHED set (req=%p)\n", req);
 		spin_unlock(&fiq->lock);
 		return 0;
 	}
 	if (test_and_set_bit(FR_INTERRUPTED, &req->flags)) {
 		/* Already queued previously; nothing to do */
-		dprintk("Interrupt already queued: FR_INTERRUPTED was set (req=%p)\n", req);
+		_printk("Interrupt already queued: FR_INTERRUPTED was set (req=%p)\n", req);
 		spin_unlock(&fiq->lock);
 		return 0;
 	}
