@@ -488,3 +488,66 @@ jobs:
         with:
           files: ${{ env.ZIP_NAME }}
           tag_name: "YASK-NEXT"
+
+      - name: "📱 Send Telegram Notification"
+        if: always()
+        run: |
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/YASK-NEXT"
+
+          if [[ "${{ job.status }}" == "success" ]]; then
+            MESSAGE="✅ *YASK Kernel Released*
+
+          📦 *Build Information:*
+          • Kernel: \`Linux 5.15\`
+          • Android: \`13-16\`
+          • Base: \`GKI + CLO\`
+          • KSU: \`Wild KSU (canary)\`
+          • SUSFS: \`Enabled (GKI A13-5.15)\`
+          • LTO: \`Full\`
+          • Optimization: \`-O2\`
+
+          🧩 *Variants:*
+          • \`Image.gki.ksu\` — GKI + Wild KSU
+          • \`Image.clo.ksu\` — CLO + Wild KSU
+          • \`Image.gki.noksu\` — GKI, no root
+          • \`Image.clo.noksu\` — CLO, no root
+
+          📱 *Supported Devices:*
+          • Redmi Note 12 4G/NFC
+          • Redmi Note 13 4G/NFC
+          • Redmi Pad SE
+
+          🕐 *Build Date:* $(date '+%Y-%m-%d %H:%M:%S UTC')
+          📦 *Package:* \`${{ env.ZIP_NAME }}\`
+
+          ⬇️ [Download from GitHub Release]($RELEASE_URL)"
+
+            curl -s -X POST \
+              -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
+              -d text="$MESSAGE" \
+              -d parse_mode="Markdown" \
+              -d disable_web_page_preview="false" \
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+
+          else
+            FAILURE_MSG="❌ *YASK Kernel Build Failed*
+
+          📦 *Build Information:*
+          • Kernel: \`Linux 5.15\`
+          • Android: \`13-16\`
+          • Base: \`GKI + CLO\`
+          • KSU: \`Wild KSU (canary)\`
+          • SUSFS: \`Enabled (GKI A13-5.15)\`
+          • LTO: \`Full\`
+          • Optimization: \`-O2\`
+
+          🕐 *Failed at:* $(date '+%Y-%m-%d %H:%M:%S UTC')
+
+          🔍 Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
+
+            curl -s -X POST \
+              -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
+              -d text="$FAILURE_MSG" \
+              -d parse_mode="Markdown" \
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+          fi
