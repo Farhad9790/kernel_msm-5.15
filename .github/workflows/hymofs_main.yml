@@ -228,11 +228,20 @@ jobs:
       - name: "🔧 HymoFS setup"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
-          curl -LSs https://raw.githubusercontent.com/Anatdx/HymoFS/main/setup.sh | bash -s defconfig arch/arm64/configs/${{ env.DEFCONFIG_NAME}} with-susfs
+          curl -LSs https://raw.githubusercontent.com/Anatdx/HymoFS/main/setup.sh | bash -s defconfig arch/arm64/configs/${{ env.DEFCONFIG_NAME}} 
 
           CONFIG_FILE="arch/arm64/configs/${{ env.DEFCONFIG_NAME }}"
           cat >> "$CONFIG_FILE" << 'EOF'
           CONFIG_HYMOFS=y
+          CONFIG_HYMOFS_REVERSE_LOOKUP=y
+          CONFIG_HYMOFS_FORWARD_REDIRECT=y
+          CONFIG_HYMOFS_HIDE_ENTRIES=y
+          CONFIG_HYMOFS_INJECT_ENTRIES=y
+          CONFIG_HYMOFS_STAT_SPOOF=y
+          CONFIG_HYMOFS_XATTR_FILTER=y
+          CONFIG_HYMOFS_UNAME_SPOOF=y
+          CONFIG_HYMOFS_CMDLINE_SPOOF=y
+          CONFIG_HYMOFS_DEBUG=y
           EOF
 
       - name: "🔨 Build kernel"
