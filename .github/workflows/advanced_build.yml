@@ -37,14 +37,6 @@ on:
           - "noksu"
           - "ksu"
           - "both"
-      ksuVariant:
-        description: "KSU implementation"
-        required: true
-        type: choice
-        default: "sukisu-ultra"
-        options:
-          - "sukisu-ultra"
-          - "wildksu"
       tickRate:
         description: "Kernel tick rate (Hz)"
         required: false
@@ -254,7 +246,7 @@ jobs:
             args="$args CC=clang"
             echo "args=$args" >> $GITHUB_OUTPUT
 
-      - name: "📝 Append custom Makefile line CUSTOM"
+      - name: "📝 Append custom Makefile line"
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
          echo 'KBUILD_CFLAGS += -Wno-default-const-init-unsafe' >> Makefile
@@ -327,7 +319,7 @@ jobs:
                    
           # Apply selected tick rate
           case "${{ github.event.inputs.tickRate }}" in
-          default)
+            default)
               # nothing to add here (keep it default)
               ;;
             100Hz)
@@ -375,6 +367,14 @@ jobs:
           # localversion
           # curl -L -o localversion.patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch" 
           # patch -p1 < localversion.patch || echo "Warning: Strings patch failed"
+
+      - name: "🔧 Add BBG Support (KSU variant only)"
+        working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
+        run: |
+          echo "Adding BBG...";
+          wget -O- https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh | bash
+          echo "CONFIG_BBG=y" >> arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
           
       - name: "🔧 Setup Wild KSU with SUSFS"
         if: matrix.variant == 'ksu'
@@ -497,15 +497,6 @@ jobs:
             OBJCOPY=llvm-objcopy \
             STRIP=llvm-strip \
             -j$(nproc --all)
-
-      - name: "🩹 Apply KPM patch (SukiSU-Ultra only)"
-        if: matrix.variant == 'ksu'
-        working-directory: ${{ env.WORK_DIR }}/out/dist
-        run: |
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" -o patch
-          chmod +x patch
-          ./patch
-          mv oImage Image
           
       - name: 📦 Prepare artifact
         working-directory: ${{ env.WORK_DIR }}
@@ -568,7 +559,7 @@ jobs:
          if [ "${{ github.event.inputs.buildKSU }}" != "noksu" ]; then
           KSU_TEXT="
           
-         🔐 *KSU Variant:* \`${{ github.event.inputs.ksuVariant }}\`"
+         🔐 *KSU Variant:* \`Wild KSU\`"
          fi
       
          CAPTION="✅ *Kernel Build Successful*
