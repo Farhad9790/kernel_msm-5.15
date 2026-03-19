@@ -161,6 +161,7 @@ jobs:
           done
 
       - name: "🔧 Add BBG Support (KSU variant only)"
+        if: matrix.kernel.enable_ksu == true
         working-directory: ./${{ env.KERNEL_LOC_DIR }}/${{ env.KERNEL_NAME }}
         run: |
           echo "Adding BBG...";
