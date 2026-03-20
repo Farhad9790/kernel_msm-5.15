@@ -496,22 +496,19 @@ jobs:
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/YASK-NEXT"
 
           if [[ "${{ job.status }}" == "success" ]]; then
-            MESSAGE="✅ *YASK Kernel Released*
+            MESSAGE="
+          
+          ✅ *YASK Kernel Released*
 
           📦 *Build Information:*
           • Kernel: \`Linux 5.15\`
           • Android: \`13-16\`
-          • Base: \`GKI + CLO\`
+          • Base: \`GKI & CLO\`
           • KSU: \`Wild KSU (canary)\`
           • SUSFS: \`Enabled (GKI A13-5.15)\`
           • LTO: \`Full\`
           • Optimization: \`-O2\`
-
-          🧩 *Variants:*
-          • \`Image.gki.ksu\` — GKI + Wild KSU
-          • \`Image.clo.ksu\` — CLO + Wild KSU
-          • \`Image.gki.noksu\` — GKI, no root
-          • \`Image.clo.noksu\` — CLO, no root
+          • BBG: \`Enabled\`
 
           📱 *Supported Devices:*
           • Redmi Note 12 4G/NFC
@@ -521,7 +518,7 @@ jobs:
           🕐 *Build Date:* $(date '+%Y-%m-%d %H:%M:%S UTC')
           📦 *Package:* \`${{ env.ZIP_NAME }}\`
 
-          ⬇️ [Download from GitHub Release]($RELEASE_URL)"
+          ⬇️ [Download Here]($RELEASE_URL)"
 
             curl -s -X POST \
               -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
@@ -532,16 +529,17 @@ jobs:
 
           else
             FAILURE_MSG="❌ *YASK Kernel Build Failed*
-
+            
           📦 *Build Information:*
           • Kernel: \`Linux 5.15\`
           • Android: \`13-16\`
-          • Base: \`GKI + CLO\`
+          • Base: \`GKI & CLO\`
           • KSU: \`Wild KSU (canary)\`
           • SUSFS: \`Enabled (GKI A13-5.15)\`
           • LTO: \`Full\`
           • Optimization: \`-O2\`
-
+          • BBG: \`Enabled\`
+          
           🕐 *Failed at:* $(date '+%Y-%m-%d %H:%M:%S UTC')
 
           🔍 Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
