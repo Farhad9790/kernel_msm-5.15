@@ -494,7 +494,7 @@ jobs:
         if: always()
         run: |
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/YASK-NEXT"
-          BANNER_URL="BANNER_URL="https://raw.githubusercontent.com/topnotchfreaks/kernel_msm-5.15/builder/assets/yask.png""
+          BANNER_URL="https://raw.githubusercontent.com/topnotchfreaks/kernel_msm-5.15/builder/assets/yask.png"
 
           if [[ "${{ job.status }}" == "success" ]]; then
             MESSAGE="✅ *YASK Kernel Released*
