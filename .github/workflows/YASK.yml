@@ -494,11 +494,10 @@ jobs:
         if: always()
         run: |
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/YASK-NEXT"
+          BANNER_URL="https://github.com/user-attachments/assets/7350f790-1552-41e6-83bf-25b6bb2762be"
 
           if [[ "${{ job.status }}" == "success" ]]; then
-            MESSAGE="
-          
-          ✅ *YASK Kernel Released*
+            MESSAGE="✅ *YASK Kernel Released*
 
           📦 *Build Information:*
           • Kernel: \`Linux 5.15\`
@@ -522,10 +521,11 @@ jobs:
 
             curl -s -X POST \
               -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
-              -d text="$MESSAGE" \
+              -d photo="${BANNER_URL}" \
+              --data-urlencode "caption=${MESSAGE}" \
               -d parse_mode="Markdown" \
               -d disable_web_page_preview="false" \
-              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendPhoto"
 
           else
             FAILURE_MSG="❌ *YASK Kernel Build Failed*
@@ -543,10 +543,11 @@ jobs:
           🕐 *Failed at:* $(date '+%Y-%m-%d %H:%M:%S UTC')
 
           🔍 Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
-
+           
             curl -s -X POST \
               -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
-              -d text="$FAILURE_MSG" \
+              -d photo="${BANNER_URL}" \
+              --data-urlencode "caption=${FAILURE_MSG}" \
               -d parse_mode="Markdown" \
-              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendPhoto"
           fi
