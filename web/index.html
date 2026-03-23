@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YASK Kernel — Wiki</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #0f1117;
+    --surface2: #161920;
+    --border: #1e2330;
+    --border-bright: #2a3040;
+    --accent: #4ade80;
+    --accent2: #22d3ee;
+    --accent3: #f59e0b;
+    --accent-dim: rgba(74, 222, 128, 0.12);
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --danger: #f87171;
+    --warn: #fbbf24;
+    --info: #38bdf8;
+    --ksu: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .layout {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-ascii {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.3;
+    color: var(--accent);
+    letter-spacing: 0;
+    white-space: pre;
+    opacity: 0.9;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-nav {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-section {
+    margin-bottom: 20px;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    padding: 0 8px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .nav-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: rgba(74,222,128,0.2);
+  }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-dot { background: var(--accent); }
+
+  /* ── Main content ── */
+  .main {
+    flex: 1;
+    overflow-x: hidden;
+  }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb span { color: var(--accent); }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .badge-green { background: rgba(74,222,128,0.1); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
+  .badge-blue  { background: rgba(34,211,238,0.1); color: var(--accent2); border: 1px solid rgba(34,211,238,0.2); }
+  .badge-amber { background: rgba(245,158,11,0.1); color: var(--accent3); border: 1px solid rgba(245,158,11,0.2); }
+
+  .content {
+    padding: 40px;
+    max-width: 960px;
+  }
+
+  /* ── Section ── */
+  .section {
+    display: none;
+  }
+  .section.active { display: block; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, rgba(74,222,128,0.05) 0%, rgba(34,211,238,0.05) 100%);
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: 'YASK';
+    position: absolute;
+    right: -20px;
+    top: -10px;
+    font-size: 120px;
+    font-weight: 800;
+    color: rgba(74,222,128,0.04);
+    font-family: 'Syne', sans-serif;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hero-stat-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Cards ── */
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border-bright); }
+
+  .card-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .card p {
+    font-size: 13px;
+    margin-bottom: 0;
+  }
+
+  /* ── Workflow cards ── */
+  .workflow-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .workflow-header {
+    padding: 16px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .workflow-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .workflow-body {
+    padding: 20px;
+  }
+
+  /* ── Steps ── */
+  .steps {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 20px;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border-bright);
+  }
+
+  .step {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .step-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #c9d1d9;
+    white-space: pre;
+  }
+
+  .code-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .cmt { color: #8b949e; }
+  .val { color: var(--accent); }
+  .key { color: #ffa657; }
+
+  /* ── Tables ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td.label { color: var(--text); font-weight: 500; }
+  td.green { color: var(--accent); }
+  td.blue  { color: var(--accent2); }
+  td.amber { color: var(--accent3); }
+  td.purple { color: var(--ksu); }
+
+  /* ── Alerts ── */
+  .alert {
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.6;
+  }
+
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-content { color: var(--text-dim); }
+  .alert-content strong { color: var(--text); }
+
+  .alert-info    { background: rgba(56,189,248,0.07); border: 1px solid rgba(56,189,248,0.2); }
+  .alert-warn    { background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2); }
+  .alert-success { background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.2); }
+  .alert-danger  { background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .pill-green  { background: rgba(74,222,128,0.12); color: var(--accent); }
+  .pill-blue   { background: rgba(34,211,238,0.12); color: var(--accent2); }
+  .pill-amber  { background: rgba(245,158,11,0.12); color: var(--accent3); }
+  .pill-purple { background: rgba(167,139,250,0.12); color: var(--ksu); }
+  .pill-red    { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .matrix-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .matrix-card .name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+
+  .matrix-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .matrix-row:last-child { border: none; }
+  .matrix-key { color: var(--text-muted); }
+  .matrix-val { color: var(--text-dim); }
+
+  /* ── Secrets section ── */
+  .secrets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .secret-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .secret-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent3);
+    min-width: 200px;
+  }
+
+  .secret-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 20px; }
+    .topbar { padding: 12px 20px; }
+    .matrix-grid { grid-template-columns: 1fr; }
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-ascii">██╗   ██╗ █████╗ ███████╗██╗  ██╗
+╚██╗ ██╔╝██╔══██╗██╔════╝██║ ██╔╝
+ ╚████╔╝ ███████║███████╗█████╔╝ 
+  ╚██╔╝  ██╔══██║╚════██║██╔═██╗ 
+   ██║   ██║  ██║███████║██║  ██╗
+   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝</div>
+      <div class="logo-sub">Yet Another Stock Kernel</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Overview</div>
+        <a class="nav-item active" onclick="showSection('overview')">
+          <span class="nav-dot"></span>Introduction
+        </a>
+        <a class="nav-item" onclick="showSection('features')">
+          <span class="nav-dot"></span>Features
+        </a>
+        <a class="nav-item" onclick="showSection('devices')">
+          <span class="nav-dot"></span>Supported Devices
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Workflows</div>
+        <a class="nav-item" onclick="showSection('yask-wf')">
+          <span class="nav-dot"></span>YASK.yml (Auto)
+        </a>
+        <a class="nav-item" onclick="showSection('main-wf')">
+          <span class="nav-dot"></span>main.yml
+        </a>
+        <a class="nav-item" onclick="showSection('advanced-wf')">
+          <span class="nav-dot"></span>advanced_build.yml
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Configuration</div>
+        <a class="nav-item" onclick="showSection('matrix')">
+          <span class="nav-dot"></span>Build Matrix
+        </a>
+        <a class="nav-item" onclick="showSection('ksu')">
+          <span class="nav-dot"></span>KSU & SUSFS
+        </a>
+        <a class="nav-item" onclick="showSection('secrets')">
+          <span class="nav-dot"></span>Secrets & Tokens
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Reference</div>
+        <a class="nav-item" onclick="showSection('inputs')">
+          <span class="nav-dot"></span>Workflow Inputs
+        </a>
+        <a class="nav-item" onclick="showSection('outputs')">
+          <span class="nav-dot"></span>Artifacts & Output
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span>YASK</span> / wiki / <span id="current-page">overview</span>
+      </div>
+      <div class="badges">
+        <span class="badge badge-green">Linux 5.15</span>
+        <span class="badge badge-blue">Android 13–16</span>
+        <span class="badge badge-amber">3 Workflows</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ OVERVIEW ══ -->
+      <div class="section active" id="section-overview">
+        <div class="hero">
+          <h1>YASK Kernel <em>Wiki</em></h1>
+          <p>YASK (Yet Another Stock Kernel) is an automated CI/CD pipeline that builds, packages, and publishes Android Linux 5.15 kernels targeting Qualcomm MSM devices — with optional KernelSU and SUSFS root support.</p>
+          <div class="hero-meta">
+            <div class="hero-stat"><div class="hero-stat-val">5.15</div><div class="hero-stat-label">Kernel</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">3</div><div class="hero-stat-label">Workflows</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">4</div><div class="hero-stat-label">Build targets</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">GKI+CLO</div><div class="hero-stat-label">Bases</div></div>
+          </div>
+        </div>
+
+        <h2>What is YASK?</h2>
+        <p>YASK is a GitHub Actions–based kernel build system that produces flashable AnyKernel3 ZIPs for Redmi Note 12/13 4G and Redmi Pad SE. It supports both Google (GKI) and Qualcomm (CLO) kernel sources, with or without KernelSU root access.</p>
+        <p>Builds are triggered on a weekly schedule (every Sunday midnight UTC) or manually. Results are published as GitHub Releases and a Telegram notification is sent with build info.</p>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h3>Three workflows</h3>
+            <p>YASK.yml for automated weekly releases, main.yml for quick manual builds, and advanced_build.yml for fully customizable builds.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔐</div>
+            <h3>Wild-KSU + SUSFS</h3>
+            <p>Integrates Wild KernelSU (canary/stable) with SUSFS for root hiding, uname spoofing, and magic mount support.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📦</div>
+            <h3>AnyKernel3 packaging</h3>
+            <p>All kernel images are bundled into a single flashable ZIP via AnyKernel3 with a custom banner and multi-image support.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📱</div>
+            <h3>Telegram notifications</h3>
+            <p>On success or failure, a Telegram message is sent with build metadata, device list, and a download link.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ FEATURES ══ -->
+      <div class="section" id="section-features">
+        <h2>Features</h2>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-icon">🚀</div>
+            <h3>Full / Thin LTO</h3>
+            <p>Supports both <code>LTO=full</code> and <code>LTO=thin</code> via Clang link-time optimisation for improved runtime performance.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🌐</div>
+            <h3>TCP Congestion Control</h3>
+            <p>Includes BBR, Westwood, and HTCP. Default is Westwood with BBR also enabled for flexible congestion management.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🛡️</div>
+            <h3>Baseband Guard (BBG)</h3>
+            <p>Injects the Baseband Guard LSM module into KSU builds for enhanced modem/baseband security.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔑</div>
+            <h3>Wild KernelSU</h3>
+            <p>Uses Wild_KSU (canary or stable build) with full SUSFS integration for root access with detection hiding.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🗂️</div>
+            <h3>OverlayFS + TmpFS</h3>
+            <p>OverlayFS, TmpFS XATTR, and POSIX ACL configs are enabled for module and systemless modification support.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔎</div>
+            <h3>KALLSYMS</h3>
+            <p>Full kernel symbol table enabled, which is required for Metamodule-based Magisk modules and kernel debugging.</p>
+          </div>
+        </div>
+
+        <h2>Compiler</h2>
+        <p>Two Clang toolchains are used across the workflows:</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Toolchain</th><th>Version</th><th>Used In</th></tr>
+            <tr><td class="label">clang-r547379</td><td class="green">r547379</td><td>YASK.yml, main.yml</td></tr>
+            <tr><td class="label">clang-r584948b</td><td class="blue">r584948b</td><td>advanced_build.yml (android-tools)</td></tr>
+            <tr><td class="label">greenforce_clang</td><td class="amber">latest</td><td>advanced_build.yml (custom-tools)</td></tr>
+          </table>
+        </div>
+
+        <h2>Kernel Config Highlights</h2>
+        <div class="code-block">
+          <div class="code-label">arch/arm64/configs/gki_defconfig (appended)</div>
+          <pre><span class="val">CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE</span>=y       <span class="cmt"># -O2</span>
+<span class="val">CONFIG_TCP_CONG_BBR</span>=y
+<span class="val">CONFIG_TCP_CONG_WESTWOOD</span>=y
+<span class="val">CONFIG_DEFAULT_WESTWOOD</span>=y
+<span class="val">CONFIG_OVERLAY_FS</span>=y
+<span class="val">CONFIG_TMPFS_XATTR</span>=y
+<span class="val">CONFIG_TMPFS_POSIX_ACL</span>=y
+<span class="val">CONFIG_KALLSYMS</span>=y
+<span class="val">CONFIG_KSU</span>=y                               <span class="cmt"># KSU builds only</span>
+<span class="val">CONFIG_KSU_SUSFS</span>=y                         <span class="cmt"># KSU builds only</span>
+<span class="val">CONFIG_BBG</span>=y                               <span class="cmt"># KSU builds only</span></pre>
+        </div>
+      </div>
+
+      <!-- ══ DEVICES ══ -->
+      <div class="section" id="section-devices">
+        <h2>Supported Devices</h2>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">ℹ️</span>
+          <div class="alert-content">These kernels target the Qualcomm <strong>MSM5.15 platform</strong> running Android 13–16. The GKI image is generic; the CLO image is built from Qualcomm's CodeLinaro kernel for better hardware compatibility.</div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <tr><th>Device</th><th>Codename</th><th>Notes</th></tr>
+            <tr><td class="label">Redmi Note 12 4G</td><td class="green">tapas</td><td>Primary target</td></tr>
+            <tr><td class="label">Redmi Note 12 NFC</td><td class="green">—</td><td>NFC variant</td></tr>
+            <tr><td class="label">Redmi Note 13 4G</td><td class="blue">sapphire</td><td>Primary target</td></tr>
+            <tr><td class="label">Redmi Note 13 NFC</td><td class="blue">—</td><td>NFC variant</td></tr>
+            <tr><td class="label">Redmi Pad SE</td><td class="amber">—</td><td>Tablet variant</td></tr>
+          </table>
+        </div>
+
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-content"><strong>Before flashing:</strong> Ensure your device is in this list. Always back up your current kernel using TWRP or a boot image backup before flashing.</div>
+        </div>
+      </div>
+
+      <!-- ══ YASK.yml WORKFLOW ══ -->
+      <div class="section" id="section-yask-wf">
+        <h2>YASK.yml — Automated Weekly Build</h2>
+
+        <div class="tag-row">
+          <span class="pill pill-green">schedule: weekly</span>
+          <span class="pill pill-blue">workflow_dispatch</span>
+          <span class="pill pill-amber">matrix: 4 variants</span>
+          <span class="pill pill-purple">LTO: full</span>
+        </div>
+
+        <p>This is the primary automated workflow. It runs every Sunday at 00:00 UTC (or on demand) and builds all four kernel variants in parallel, then packages and releases them together.</p>
+
+        <h3>Trigger</h3>
+        <div class="code-block">
+          <pre><span class="key">on</span>:
+  <span class="key">schedule</span>:
+    - <span class="key">cron</span>: <span class="str">'0 0 * * 0'</span>   <span class="cmt"># Every Sunday midnight UTC</span>
+  <span class="key">workflow_dispatch</span>:       <span class="cmt"># Manual trigger from GitHub UI</span></pre>
+        </div>
+
+        <h3>Build Matrix (4 targets)</h3>
+        <div class="matrix-grid">
+          <div class="matrix-card">
+            <div class="name">GKI</div>
+            <div class="matrix-row"><span class="matrix-key">source</span><span class="matrix-val">AOSP android.googlesource.com</span></div>
+            <div class="matrix-row"><span class="matrix-key">branch</span><span class="matrix-val">android13-5.15-lts</span></div>
+            <div class="matrix-row"><span class="matrix-key">KSU</span><span class="matrix-val">✅ Wild-KSU + SUSFS</span></div>
+            <div class="matrix-row"><span class="matrix-key">output</span><span class="matrix-val">Image.gki.ksu</span></div>
+          </div>
+          <div class="matrix-card">
+            <div class="name">CLO</div>
+            <div class="matrix-row"><span class="matrix-key">source</span><span class="matrix-val">git.codelinaro.org/clo/la</span></div>
+            <div class="matrix-row"><span class="matrix-key">branch</span><span class="matrix-val">kernel.lnx.5.15.r1-rel</span></div>
+            <div class="matrix-row"><span class="matrix-key">KSU</span><span class="matrix-val">✅ Wild-KSU + SUSFS</span></div>
+            <div class="matrix-row"><span class="matrix-key">output</span><span class="matrix-val">Image.clo.ksu</span></div>
+          </div>
+          <div class="matrix-card">
+            <div class="name">GKI-NoKSU</div>
+            <div class="matrix-row"><span class="matrix-key">source</span><span class="matrix-val">AOSP android.googlesource.com</span></div>
+            <div class="matrix-row"><span class="matrix-key">branch</span><span class="matrix-val">android13-5.15-lts</span></div>
+            <div class="matrix-row"><span class="matrix-key">KSU</span><span class="matrix-val">❌ Vanilla</span></div>
+            <div class="matrix-row"><span class="matrix-key">output</span><span class="matrix-val">Image.gki.noksu</span></div>
+          </div>
+          <div class="matrix-card">
+            <div class="name">CLO-NoKSU</div>
+            <div class="matrix-row"><span class="matrix-key">source</span><span class="matrix-val">git.codelinaro.org/clo/la</span></div>
+            <div class="matrix-row"><span class="matrix-key">branch</span><span class="matrix-val">kernel.lnx.5.15.r1-rel</span></div>
+            <div class="matrix-row"><span class="matrix-key">KSU</span><span class="matrix-val">❌ Vanilla</span></div>
+            <div class="matrix-row"><span class="matrix-key">output</span><span class="matrix-val">Image.clo.noksu</span></div>
+          </div>
+        </div>
+
+        <h3>Pipeline Steps</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-name">✨ Setup workspace</div>
+            <div class="step-desc">Creates kernel directory, sets BUILD_TIME env var, installs apt dependencies (repo, rsync, aria2).</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📐 Setup SWAP 10GB</div>
+            <div class="step-desc">Expands swap to 10 GB using pierotofy/set-swap-space. Sets swappiness=80 for better swap utilization during compilation.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🌟 Clone kernel source</div>
+            <div class="step-desc">Shallow clones the kernel repo (<code>--depth=1</code>) into the matrix-specific directory.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📥 Initialize AOSP repo + toolchains</div>
+            <div class="step-desc">Syncs the AOSP kernel manifest, downloads clang-r547379, removes unused Clang versions to save disk space, patches build.config.constants.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🧩 Configure kernel & patches</div>
+            <div class="step-desc">Appends LOCALVERSION + date, applies the GKI fixup patch, then applies per-matrix extra_patches (sign-builds, no-dirty, no-auto_localversion).</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔧 Add BBG Support (KSU only)</div>
+            <div class="step-desc">Downloads and runs the Baseband Guard setup script. Enables CONFIG_BBG and registers it in security/Kconfig's LSM default list.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔧 Setup Wild-KSU with SUSFS</div>
+            <div class="step-desc">Installs Wild_KSU (canary), clones SUSFS4KSU, applies kernel + KSU patches, verifies integration, adds all SUSFS Kconfig options.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">⚙️ Setup basic configs</div>
+            <div class="step-desc">Appends performance, TCP, overlayfs, tmpfs, and KALLSYMS configs to the defconfig.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📝 Append custom Makefile line</div>
+            <div class="step-desc">Adds <code>-Wno-implicit-function-declaration</code> to suppress upstream compiler warnings that would break the build.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔨 Build kernel</div>
+            <div class="step-desc">Invokes <code>build/build.sh</code> with <code>LTO=full</code> using all available cores.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📤 Upload artifact</div>
+            <div class="step-desc">Uploads the built Image file as a GitHub artifact (retained 1 day) for use by the packaging job.</div>
+          </div>
+        </div>
+
+        <h3>Package & Release</h3>
+        <p>After all matrix builds complete, the <strong>package-kernels</strong> job downloads all Image artifacts, clones the YASK branch of AnyKernel3, copies images, creates a banner, zips everything, uploads to the <code>YASK-NEXT</code> GitHub release tag, and sends a Telegram notification.</p>
+      </div>
+
+      <!-- ══ MAIN.YML ══ -->
+      <div class="section" id="section-main-wf">
+        <h2>main.yml — Manual Build</h2>
+
+        <div class="tag-row">
+          <span class="pill pill-blue">workflow_dispatch only</span>
+          <span class="pill pill-amber">LTO: thin</span>
+          <span class="pill pill-green">matrix: noksu / ksu / both</span>
+        </div>
+
+        <p>A lightweight manual workflow for quick one-off builds from any kernel source and branch. Supports building either or both KSU variants. Uses Clang r547379 and thin LTO.</p>
+
+        <h3>Pipeline Steps</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-name">✨ Setup workspace</div>
+            <div class="step-desc">Creates dirs, sets BUILD_TIME, installs repo/rsync/aria2.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🌟 Clone kernel source</div>
+            <div class="step-desc">Shallow clones from the user-provided <code>kernelSourceURL</code> and <code>kernelBranch</code>.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📥 Initialize repo</div>
+            <div class="step-desc">Syncs AOSP manifest, installs clang-r547379, removes old clangs, patches build.config.constants/gki/gki.aarch64, disables KMI enforcement.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">⚙️ Configure kernel</div>
+            <div class="step-desc">Appends optional localversion, KALLSYMS, TmpFS XATTR/POSIX_ACL.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔧 Setup Wild KSU + SUSFS</div>
+            <div class="step-desc">KSU matrix variant only. Installs Wild_KSU stable, applies SUSFS kernel patch, force-copies susfs.c/susfs.h, adds all KSU_SUSFS Kconfig options.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔨 Build kernel</div>
+            <div class="step-desc">Runs <code>build/build.sh</code> with <code>LTO=thin</code>.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📦 Package + Telegram</div>
+            <div class="step-desc">Clones AnyKernel3 master branch, creates ZIP named <code>Anykernel3_WildKSU_&lt;branch&gt;_&lt;date&gt;.zip</code>, uploads artifact (7 days), sends Telegram document.</div>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">💡</span>
+          <div class="alert-content">This workflow uses Wild_KSU <strong>stable</strong> release, while YASK.yml uses <strong>canary</strong>. Use main.yml when you need a production-ready KSU build.</div>
+        </div>
+      </div>
+
+      <!-- ══ ADVANCED.YML ══ -->
+      <div class="section" id="section-advanced-wf">
+        <h2>advanced_build.yml — Full Customisation</h2>
+
+        <div class="tag-row">
+          <span class="pill pill-blue">workflow_dispatch</span>
+          <span class="pill pill-purple">2 toolchain modes</span>
+          <span class="pill pill-amber">tick rate control</span>
+          <span class="pill pill-green">optimization level</span>
+        </div>
+
+        <p>The most feature-rich workflow. Exposes all major build knobs as workflow inputs. Supports two toolchain modes: <strong>android-tools</strong> (AOSP Clang r584948b) and <strong>custom-tools</strong> (greenforce_clang latest).</p>
+
+        <h3>Toolchain Modes</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Mode</th><th>Clang</th><th>Build Command</th></tr>
+            <tr>
+              <td class="label">android-tools</td>
+              <td class="green">r584948b (AOSP)</td>
+              <td>build/build.sh via AOSP repo</td>
+            </tr>
+            <tr>
+              <td class="label">custom-tools</td>
+              <td class="amber">greenforce latest</td>
+              <td>make directly with LLVM=1</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3>Pipeline Steps</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-name">✨ Setup workspace</div>
+            <div class="step-desc">Installs extended apt packages including <code>build-essential bc flex cpio dwarves libelf-dev gcc-aarch64-linux-gnu libssl-dev clang lld llvm</code>.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🌟 Clone kernel source</div>
+            <div class="step-desc">Shallow clone from user-provided URL/branch.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📥 Initialize repo (android-tools only)</div>
+            <div class="step-desc">Syncs manifest, installs clang-r584948b, removes older clangs (including r547379 used in other workflows), fully disables KMI enforcement.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">💫 Get Toolchains (custom-tools only)</div>
+            <div class="step-desc">Fetches the latest greenforce_clang release from GitHub API, downloads the tar.gz, extracts it, and exports CC/AR/NM/OBJCOPY env vars.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📐 Setup SWAP 20GB</div>
+            <div class="step-desc">Larger 20 GB swap vs 10 GB in YASK.yml, accommodating more intensive builds.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">📝 Append custom Makefile</div>
+            <div class="step-desc">Adds four warning suppression flags: <code>-Wno-default-const-init-unsafe -Wno-uninitialized-const-pointer -Wno-implicit-function-declaration -Wno-sometimes-uninitialized</code>.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">⚙️ Configure kernel</div>
+            <div class="step-desc">Handles LTO (thin/full), localversion, metamodule support, optimization level (O2/O3/Os), tick rate (100/250/300/1000Hz), and applies the sign-builds patch.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔧 Add BBG Support</div>
+            <div class="step-desc">Runs Baseband Guard setup on all builds (not KSU-conditional as in YASK.yml).</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔧 Setup Wild KSU + SUSFS</div>
+            <div class="step-desc">KSU variant. Installs Wild_KSU canary, applies SUSFS patches, creates drivers/kernelsu symlink pointing to KernelSU (not Wild_KSU).</div>
+          </div>
+          <div class="step">
+            <div class="step-name">🔨 Build + Package + Telegram</div>
+            <div class="step-desc">Builds via android-tools or custom-tools path, packages with AnyKernel3, sends Telegram document with full build metadata.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MATRIX ══ -->
+      <div class="section" id="section-matrix">
+        <h2>Build Matrix Reference</h2>
+
+        <p>YASK.yml defines a static 4-target matrix. main.yml and advanced_build.yml use a dynamic 2-variant matrix (<code>noksu</code> / <code>ksu</code>) driven by the <code>buildKSU</code> input.</p>
+
+        <h3>YASK.yml Static Matrix</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>name</th><th>source</th><th>branch</th><th>KSU</th><th>output</th></tr>
+            <tr>
+              <td class="label">GKI</td>
+              <td>android.googlesource.com</td>
+              <td>android13-5.15-lts</td>
+              <td class="green">✅ canary</td>
+              <td class="blue">Image.gki.ksu</td>
+            </tr>
+            <tr>
+              <td class="label">CLO</td>
+              <td>git.codelinaro.org</td>
+              <td>kernel.lnx.5.15.r1-rel</td>
+              <td class="green">✅ canary</td>
+              <td class="blue">Image.clo.ksu</td>
+            </tr>
+            <tr>
+              <td class="label">GKI-NoKSU</td>
+              <td>android.googlesource.com</td>
+              <td>android13-5.15-lts</td>
+              <td class="amber">❌ vanilla</td>
+              <td class="blue">Image.gki.noksu</td>
+            </tr>
+            <tr>
+              <td class="label">CLO-NoKSU</td>
+              <td>git.codelinaro.org</td>
+              <td>kernel.lnx.5.15.r1-rel</td>
+              <td class="amber">❌ vanilla</td>
+              <td class="blue">Image.clo.noksu</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3>Dynamic Matrix (main.yml / advanced_build.yml)</h3>
+        <div class="code-block">
+          <pre><span class="key">matrix</span>:
+  <span class="key">variant</span>: <span class="val">${{ fromJSON(</span>
+    <span class="cmt"># buildKSU == 'both'  → ["noksu", "ksu"]</span>
+    <span class="cmt"># buildKSU == 'ksu'   → ["ksu"]</span>
+    <span class="cmt"># buildKSU == 'noksu' → ["noksu"]</span>
+  <span class="val">) }}</span></pre>
+        </div>
+      </div>
+
+      <!-- ══ KSU ══ -->
+      <div class="section" id="section-ksu">
+        <h2>KernelSU & SUSFS Integration</h2>
+
+        <div class="alert alert-success">
+          <span class="alert-icon">✅</span>
+          <div class="alert-content">YASK uses <strong>Wild_KSU</strong> (a maintained KernelSU fork) with full SUSFS integration for comprehensive root hiding and kernel spoofing.</div>
+        </div>
+
+        <h3>Wild_KSU</h3>
+        <p>Wild_KSU is installed via its official setup script. YASK.yml uses <strong>canary</strong> (bleeding edge), main.yml uses <strong>stable</strong>.</p>
+        <div class="code-block">
+          <pre><span class="cmt"># Canary (YASK.yml, advanced_build.yml)</span>
+curl -LSs "https://raw.githubusercontent.com/WildKernels/Wild_KSU/wild/kernel/setup.sh" | bash -<span class="val">s</span> <span class="str">canary</span>
+
+<span class="cmt"># Stable (main.yml)</span>
+curl -LSs "https://raw.githubusercontent.com/WildKernels/Wild_KSU/wild/kernel/setup.sh" | bash -<span class="val">s</span> <span class="str">stable</span></pre>
+        </div>
+
+        <h3>SUSFS4KSU</h3>
+        <p>SUSFS is cloned from <code>gitlab.com/simonpunk/susfs4ksu</code> on branch <code>gki-android13-5.15</code>. The integration process:</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-name">1. Apply kernel patch</div>
+            <div class="step-desc"><code>50_add_susfs_in_gki-android13-5.15.patch</code> — patches core kernel files for SUSFS hooks.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">2. Copy source files</div>
+            <div class="step-desc"><code>fs/susfs.c</code>, <code>include/linux/susfs.h</code>, <code>include/linux/susfs_def.h</code> are force-copied into the kernel tree.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">3. Integrate with KSU init (YASK.yml)</div>
+            <div class="step-desc">Adds <code>#include &lt;linux/susfs.h&gt;</code> and calls <code>susfs_init()</code> in Wild_KSU/kernel/ksu.c, with patch fallback to manual sed injection.</div>
+          </div>
+          <div class="step">
+            <div class="step-name">4. Append Kconfig options</div>
+            <div class="step-desc">All SUSFS feature flags are appended to defconfig including magic mount, sus path/mount, uname spoofing, cmdline spoofing, open redirect, and sus_su.</div>
+          </div>
+        </div>
+
+        <h3>SUSFS Kconfig Options</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Config</th><th>Purpose</th></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS</td><td>Enable SUSFS core</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT</td><td>Systemless mount support</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SUS_PATH</td><td>Hide KSU paths from filesystem</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SUS_MOUNT</td><td>Hide KSU mounts</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SUS_KSTAT</td><td>Spoof file stats</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_TRY_UMOUNT</td><td>Auto umount detection</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SPOOF_UNAME</td><td>Hide kernel version string</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_ENABLE_LOG</td><td>SUSFS kernel logging</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS</td><td>Hide symbols from /proc/kallsyms</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG</td><td>Hide from cmdline readers</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_OPEN_REDIRECT</td><td>Redirect open() calls</td></tr>
+            <tr><td class="label">CONFIG_KSU_SUSFS_SUS_SU</td><td>Hide su binary</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ SECRETS ══ -->
+      <div class="section" id="section-secrets">
+        <h2>Secrets & Repository Tokens</h2>
+
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-content">These must be configured in <strong>Settings → Secrets and variables → Actions</strong> in your GitHub repository before the workflows will function correctly.</div>
+        </div>
+
+        <div class="secrets-list">
+          <div class="secret-item">
+            <div class="secret-key">GH_TOKEN</div>
+            <div class="secret-desc">GitHub Personal Access Token with <code>repo</code> scope. Required for uploading the AnyKernel3 ZIP to GitHub Releases via <code>softprops/action-gh-release</code>. Used only in YASK.yml.</div>
+          </div>
+          <div class="secret-item">
+            <div class="secret-key">TELEGRAM_BOT_TOKEN</div>
+            <div class="secret-desc">Telegram Bot API token from @BotFather. Used to send build notifications via <code>sendPhoto</code> or <code>sendDocument</code> API calls.</div>
+          </div>
+          <div class="secret-item">
+            <div class="secret-key">TELEGRAM_USER_ID</div>
+            <div class="secret-desc">Telegram chat ID (user or channel) where notifications are sent. Can be your personal ID or a channel ID with the bot as admin.</div>
+          </div>
+        </div>
+
+        <h3>How to obtain</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Secret</th><th>How to get</th></tr>
+            <tr><td class="label">GH_TOKEN</td><td>GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic) → check <code>repo</code></td></tr>
+            <tr><td class="label">TELEGRAM_BOT_TOKEN</td><td>Message <code>@BotFather</code> on Telegram → /newbot → copy the token</td></tr>
+            <tr><td class="label">TELEGRAM_USER_ID</td><td>Message <code>@userinfobot</code> on Telegram to get your chat ID</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ INPUTS ══ -->
+      <div class="section" id="section-inputs">
+        <h2>Workflow Inputs Reference</h2>
+
+        <p>The following inputs are available on <strong>main.yml</strong>. <strong>advanced_build.yml</strong> adds extra inputs for toolchain, LTO, tick rate, and optimization.</p>
+
+        <h3>Shared Inputs (main.yml + advanced_build.yml)</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Input</th><th>Default</th><th>Description</th></tr>
+            <tr>
+              <td class="label">kernelSourceURL</td>
+              <td class="green">topnotchfreaks/kernel_msm-5.15</td>
+              <td>Git URL of the kernel source to clone</td>
+            </tr>
+            <tr>
+              <td class="label">kernelBranch</td>
+              <td class="amber">codelinaro</td>
+              <td>Branch to checkout from the kernel repo</td>
+            </tr>
+            <tr>
+              <td class="label">kernelDevice</td>
+              <td class="amber">gki</td>
+              <td>Device name — determines defconfig (<code>&lt;device&gt;_defconfig</code>)</td>
+            </tr>
+            <tr>
+              <td class="label">localVersion</td>
+              <td>""</td>
+              <td>Optional suffix appended to CONFIG_LOCALVERSION</td>
+            </tr>
+            <tr>
+              <td class="label">buildKSU</td>
+              <td class="purple">both</td>
+              <td>Which variants to build: <code>noksu</code>, <code>ksu</code>, or <code>both</code></td>
+            </tr>
+          </table>
+        </div>
+
+        <h3>advanced_build.yml Exclusive Inputs</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Input</th><th>Options</th><th>Description</th></tr>
+            <tr>
+              <td class="label">tickRate</td>
+              <td>100Hz / 250Hz / 300Hz / 1000Hz / default</td>
+              <td>Sets CONFIG_HZ and CONFIG_HZ_xxx for the scheduler tick</td>
+            </tr>
+            <tr>
+              <td class="label">optimizationLevel</td>
+              <td>O2 / O3 / Os / default</td>
+              <td>Compiler optimization flag appended to defconfig</td>
+            </tr>
+            <tr>
+              <td class="label">buildToolchains</td>
+              <td>android-tools / custom-tools</td>
+              <td>Use AOSP Clang r584948b or latest greenforce_clang</td>
+            </tr>
+            <tr>
+              <td class="label">LTOOptimizations</td>
+              <td>thin / full</td>
+              <td>Link-time optimisation mode passed to build system</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ OUTPUTS ══ -->
+      <div class="section" id="section-outputs">
+        <h2>Artifacts & Output Files</h2>
+
+        <h3>Intermediate Artifacts</h3>
+        <p>Each build job uploads a raw kernel image as a GitHub artifact for pickup by the packaging job.</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Artifact name</th><th>File</th><th>Retention</th></tr>
+            <tr><td class="label">GKI-kernel</td><td class="green">Image.gki.ksu</td><td>1 day</td></tr>
+            <tr><td class="label">CLO-kernel</td><td class="blue">Image.clo.ksu</td><td>1 day</td></tr>
+            <tr><td class="label">GKI-NoKSU-kernel</td><td class="amber">Image.gki.noksu</td><td>1 day</td></tr>
+            <tr><td class="label">CLO-NoKSU-kernel</td><td class="amber">Image.clo.noksu</td><td>1 day</td></tr>
+          </table>
+        </div>
+
+        <h3>Final ZIP Package</h3>
+        <p>The package job bundles all images into one AnyKernel3 ZIP:</p>
+        <div class="code-block">
+          <pre><span class="cmt"># YASK.yml</span>
+Anykernel3_YASK-WildKSU-AIO-FULL_<span class="val">YYYY-MM-DD</span>.zip
+
+<span class="cmt"># main.yml</span>
+Anykernel3_WildKSU_<span class="val">&lt;branch&gt;</span>_<span class="val">YYYY-MM-DD</span>.zip
+
+<span class="cmt"># advanced_build.yml</span>
+Anykernel3_<span class="val">&lt;branch&gt;</span>_<span class="val">YYYY-MM-DD</span>.zip</pre>
+        </div>
+
+        <h3>GitHub Release (YASK.yml only)</h3>
+        <p>The package is uploaded to a rolling release tag <span class="pill pill-green">YASK-NEXT</span> via <code>softprops/action-gh-release</code>. The tag is overwritten on each successful weekly build.</p>
+
+        <h3>Telegram Notification</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Workflow</th><th>Method</th><th>Content</th></tr>
+            <tr><td class="label">YASK.yml</td><td class="blue">sendPhoto</td><td>Banner image + build metadata + download link</td></tr>
+            <tr><td class="label">main.yml</td><td class="green">sendDocument</td><td>ZIP file attached directly</td></tr>
+            <tr><td class="label">advanced_build.yml</td><td class="green">sendDocument</td><td>ZIP file with full config metadata</td></tr>
+          </table>
+        </div>
+
+        <div class="alert alert-info">
+          <span class="alert-icon">💡</span>
+          <div class="alert-content">All three workflows send a failure notification if the build or packaging step fails, including a link to the workflow run logs.</div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    const sec = document.getElementById('section-' + id);
+    if (sec) sec.classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + id + "'")) {
+        item.classList.add('active');
+      }
+    });
+
+    document.getElementById('current-page').textContent = id.replace('-', '_');
+  }
+</script>
+</body>
+</html>
