@@ -66,7 +66,7 @@ on:
         options:
           - "android-tools"
           - "custom-tools"
-      LTOOptimizations:
+      LtoOptimizations:
         description: "Choose LTO"
         required: true
         type: choice
@@ -270,7 +270,7 @@ jobs:
          fi
     
          # LTO Configuration - Enable Thin LTO only
-         if [ "${{ github.event.inputs.LTOOptimizations }}" = "thin" ]; then
+         if [ "${{ github.event.inputs.LtoOptimizations }}" = "thin" ]; then
            sed -i '/CONFIG_LTO_CLANG_FULL/d' "$CONFIG_FILE"
            echo "CONFIG_LTO_CLANG=y" >> "$CONFIG_FILE"
            echo "# CONFIG_LTO_CLANG_FULL is not set" >> "$CONFIG_FILE"
@@ -469,7 +469,7 @@ jobs:
         if: github.event.inputs.buildToolchains == 'android-tools'
         working-directory: ${{ env.WORK_DIR }}
         run: |
-          if [ "${{ github.event.inputs.LTOoptimizations }}" = "thin" ]; then
+          if [ "${{ github.event.inputs.LtoOptimizations }}" = "thin" ]; then
            LTO=thin BUILD_CONFIG=${{ env.kernelDir }}/${{ env.kernelName }}/build.config.gki.aarch64 build/build.sh -j$(nproc --all)
           else
            LTO=full BUILD_CONFIG=${{ env.kernelDir }}/${{ env.kernelName }}/build.config.gki.aarch64 build/build.sh -j$(nproc --all)
