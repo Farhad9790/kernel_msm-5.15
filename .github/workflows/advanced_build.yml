@@ -464,10 +464,10 @@ jobs:
           EOF
 
           # hooks patch
-          curl -L -o hooks.patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-69-pure-manual-hooks-only.patch" 
-          patch -p1 < hooks.patch || echo "Warning: Strings patch failed"
+          # curl -L -o hooks.patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-69-pure-manual-hooks-only.patch" 
+          # patch -p1 < hooks.patch || echo "Warning: Strings patch failed"
           
-          echo "🎉 Wild KSU with SUSFS + manual hooks kernel patches fully integrated!"
+          echo "🎉 Wild KSU with SUSFS kernel patches fully integrated!"
 
       - name: "🔨 Build kernel"
         if: github.event.inputs.buildToolchains == 'android-tools'
