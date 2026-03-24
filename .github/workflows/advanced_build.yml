@@ -571,7 +571,7 @@ jobs:
          • Device: \`${{ github.event.inputs.kernelDevice }}\`
     
          ⚙️ *Configuration:*
-         • LTO: \`${{ github.event.inputs.LTOOptimizations }}\`
+         • LTO: \`${{ github.event.inputs.LtoOptimizations }}\`
          • Optimization: \`-${{ github.event.inputs.optimizationLevel }}\`
          • Tick Rate: \`${{ github.event.inputs.tickRate }}\`
          • Build Type: \`${{ github.event.inputs.buildKSU }}\`${KSU_TEXT}
@@ -597,7 +597,7 @@ jobs:
          • Device: \`Redmi Note 12/13 4G. Pad SE\`
     
          ⚙️ *Configuration:*
-         • LTO: \`${{ github.event.inputs.LTOOptimizations }}\`
+         • LTO: \`${{ github.event.inputs.LtoOptimizations }}\`
          • Optimization: \`-${{ github.event.inputs.optimizationLevel }}\`
          • Tick Rate: \`${{ github.event.inputs.tickRate }}\`
          • Build Type: \`${{ github.event.inputs.buildKSU }}\`${KSU_TEXT}
