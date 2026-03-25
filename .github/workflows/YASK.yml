@@ -520,12 +520,12 @@ jobs:
           ⬇️ [Download Here]($RELEASE_URL)"
 
             curl -s -X POST \
-              -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
+              -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
               -d photo="${BANNER_URL}" \
               --data-urlencode "caption=${MESSAGE}" \
               -d parse_mode="Markdown" \
               -d disable_web_page_preview="false" \
-              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendPhoto"
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_YASK_BOT_TOKEN }}/sendPhoto"
 
           else
             FAILURE_MSG="❌ *YASK Kernel Build Failed*
@@ -545,9 +545,9 @@ jobs:
           🔍 Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details."
            
             curl -s -X POST \
-              -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
+              -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
               -d photo="${BANNER_URL}" \
               --data-urlencode "caption=${FAILURE_MSG}" \
               -d parse_mode="Markdown" \
-              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendPhoto"
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_YASK_BOT_TOKEN }}/sendPhoto"
           fi
