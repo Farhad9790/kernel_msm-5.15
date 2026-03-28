@@ -9,7 +9,16 @@ on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
-
+    inputs:
+     Telegram-Notifications:
+        description: "Send notification to teleram"
+        required: true
+        type: choice
+        default: yes
+        options:
+          - "yes"
+          - "no"
+        
 jobs:
   build-kernels:
     name: "🐎 Build YASK ${{ matrix.kernel.name }} kernel"
@@ -28,6 +37,7 @@ jobs:
             output_name: "Image.gki.ksu"
             enable_ksu: true
             extra_patches:
+              - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-gki-fixup.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-sign-builds.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-Don-t-append-and-dirty-to-localversion.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch"
@@ -41,6 +51,7 @@ jobs:
             output_name: "Image.clo.ksu"
             enable_ksu: true
             extra_patches:
+              - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-gki-fixup.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-sign-builds.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-Don-t-append-and-dirty-to-localversion.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch"
@@ -54,6 +65,7 @@ jobs:
             output_name: "Image.gki.noksu"
             enable_ksu: false
             extra_patches:
+              - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-gki-fixup.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-sign-builds.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-Don-t-append-and-dirty-to-localversion.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch"
@@ -67,6 +79,7 @@ jobs:
             output_name: "Image.clo.noksu"
             enable_ksu: false
             extra_patches:
+              - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-gki-fixup.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-sign-builds.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-Don-t-append-and-dirty-to-localversion.patch"
               - "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-scripts-do-not-ship-full-auto_localversion.patch"
@@ -152,10 +165,7 @@ jobs:
             rm -f "$file"
           }
 
-          # Common patches
-          apply_patch "https://raw.githubusercontent.com/topnotchfreaks/kernel_patches/main/0001-gki-fixup.patch"
-
-          # Kernel-specific patches
+          # Apply patches
           echo '${{ toJSON(matrix.kernel.extra_patches) }}' | jq -r '.[]' | while read p; do
             [ -n "$p" ] && apply_patch "$p"
           done
@@ -491,7 +501,7 @@ jobs:
           tag_name: "YASK-NEXT"
 
       - name: "📱 Send Telegram Notification"
-        if: always()
+        if: github.event.inputs.Telegram-Notifications == 'yes'
         run: |
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/YASK-NEXT"
           BANNER_URL="https://raw.githubusercontent.com/topnotchfreaks/kernel_msm-5.15/builder/assets/yask.png"
