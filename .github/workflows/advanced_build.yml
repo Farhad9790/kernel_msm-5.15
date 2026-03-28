@@ -582,6 +582,7 @@ jobs:
          • SUSFS: \`Enabled (GKI A13-5.15)\`
          • Local Version: \`${{ github.event.inputs.localVersion }}\`
          • Build Tools: \`${{ github.event.inputs.buildToolchains }}\`
+         • Manager: \`KSU,Wild-KSU,KSUN,rKSU and KowSU\`
     
          🕐 *Build Date:* $(date '+%Y-%m-%d %H:%M:%S UTC')
          📦 *Package:* \`${{ env.ZIP_NAME }}\`"
@@ -608,6 +609,7 @@ jobs:
          • SUSFS: \`Enabled (GKI A13-5.15)\`
          • Local Version: \`${{ github.event.inputs.localVersion }}\`
          • Build Tools: \`${{ github.event.inputs.buildToolchains }}\`
+         • Manager: \`KSU,Wild-KSU,KSUN,rKSU and KowSU\`
       
          🕐 *Failed at:* $(date '+%Y-%m-%d %H:%M:%S UTC')
     
