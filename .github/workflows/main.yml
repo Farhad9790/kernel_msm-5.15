@@ -128,18 +128,18 @@ jobs:
           CONFIG_TMPFS_POSIX_ACL=y
           EOF
 
-      - name: "🔧 Setup Wild KSU with SUSFS"
+      - name: "🔧 Setup ReSukiSU with SUSFS"
         if: matrix.variant == 'ksu'
         working-directory: ./${{ env.kernelDir }}/${{ env.kernelName }}
         run: |
           rm -rf ./KernelSU ./drivers/kernelsu
           
-          echo "📦 Installing Wild KSU..."
+          echo "📦 Installing ResSukiSU..."
 
-          # Install WildKSU with SUSFS
-          curl -LSs "https://raw.githubusercontent.com/WildKernels/Wild_KSU/wild/kernel/setup.sh" | bash -s stable
+          # Install ReSukiSU with SUSFS
+          curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
       
-          echo "✔ Wild KSU installed successfully"
+          echo "✔ installed successfully"
           
           # Clone SUSFS4KSU for kernel patches only (not KSU integration)
           echo "📦 Cloning SUSFS4KSU for kernel patches..."
@@ -154,8 +154,8 @@ jobs:
             echo "⚠️ SUSFS patch failed — copying files manually"
           fi
 
-          echo "🔧 Applying SUSFS -> KernelSU patch..."
-          KSU_PATCH="susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
+          # echo "🔧 Applying SUSFS -> KernelSU patch..."
+          # KSU_PATCH="susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
           
           echo "📄 Forcing SUSFS source injection..."
           
@@ -191,7 +191,7 @@ jobs:
             echo "✔ Created drivers/kernelsu symlink"
           fi
           
-          # Add Wild KSU configs with SUSFS
+          # Add KSU configs with SUSFS
           CONFIG_FILE="arch/arm64/configs/${{ env.DEFCONFIG_NAME }}"
           cat >> "$CONFIG_FILE" << 'EOF'
           CONFIG_KSU=y
@@ -216,7 +216,7 @@ jobs:
           CONFIG_KSU_SUSFS_SUS_SU=y
           EOF
           
-          echo "🎉 Wild KSU with SUSFS kernel patches fully integrated!"
+          echo "🎉 kernel patches fully integrated!"
 
       - name: "🔨 Build kernel"
         working-directory: ${{ env.WORK_DIR }}
