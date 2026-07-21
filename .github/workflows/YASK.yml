@@ -384,7 +384,7 @@ jobs:
           ║     • Full LTO + -O2 Optimization                   ║
           ║     • Extra TCP Congestion (BBR, Westwood)          ║
           ║     • AOSP clang-r547379                            ║
-          ║     • Non-KSU & ReSukiSU support                    ║
+          ║     • Non-KSU & ReSukiSU + SUSFS support            ║
           ║     • Baseband-Guard Support                        ║
           ║     • Metamodule Support                            ║
           ║                                                     ║
@@ -433,6 +433,7 @@ jobs:
           • Android: \`13-17\`
           • Base: \`GKI & CLO\`
           • KSU: \`ReSukiSU\`
+          • SUSFS: \`Enabled (GKI A13-5.15)\`
           • LTO: \`Full\`
           • Optimization: \`-O2\`
           • BBG: \`Enabled\`
@@ -441,6 +442,14 @@ jobs:
           • Redmi Note 12 4G/NFC
           • Redmi Note 13 4G/NFC
           • Redmi Pad SE
+
+          📱 *Supported Manager:*
+          • KSU by tiann
+          • MKSU
+          • Rissu-KSU
+          • KowSU
+          • ReSukiSU (Main Root Manager)
+          • SukiSU-Ultra
 
           🕐 *Build Date:* $(date '+%Y-%m-%d %H:%M:%S UTC')
           📦 *Package:* \`${{ env.ZIP_NAME }}\`
@@ -463,6 +472,7 @@ jobs:
           • Android: \`13-17\`
           • Base: \`GKI & CLO\`
           • KSU: \`ReSukiSU\`
+          • SUSFS: \`Enabled (GKI A13-5.15)\`
           • LTO: \`Full\`
           • Optimization: \`-O2\`
           • BBG: \`Enabled\`
