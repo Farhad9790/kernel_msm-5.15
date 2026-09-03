@@ -1,1 +1,1 @@
-obj-y += mydriver/
+obj-y += mydriver.o
