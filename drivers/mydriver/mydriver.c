@@ -1,1 +1,1 @@
-#include <linux/lzma.h>
+#include <linux/decompress/unlzma.h>
