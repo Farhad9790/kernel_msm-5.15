@@ -309,11 +309,11 @@ jobs:
           if [[ -f "${{ env.ZIP_PATH }}" ]]; then
             curl -s -F document=@"${{ env.ZIP_PATH }}" \
                  -F caption="✅ Kernel Build Complete (WildKSU) - $(date '+%Y-%m-%d %H:%M:%S')" \
-                 -F chat_id=${{ secrets.TELEGRAM_USER_ID }} \
-                 "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument"
+                 -F chat_id=${{ 7947079350 }} \
+                 "https://api.telegram.org/bot${{ 8791920182:AAHh5DOTQYTRMNEj-SlpXbGYKaLM98TO1DM }}/sendDocument"
           else
             curl -s -X POST \
                  -d chat_id=${{ secrets.TELEGRAM_USER_ID }} \
                  -d text="❌ Kernel build failed" \
-                 "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage"
+                 "https://api.telegram.org/bot${{ 8791920182:AAHh5DOTQYTRMNEj-SlpXbGYKaLM98TO1DM }}/sendMessage"
           fi
